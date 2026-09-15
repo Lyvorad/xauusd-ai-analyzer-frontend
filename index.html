@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Analista de oro · XAU/USD</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0F1216;
+    --panel: #171B21;
+    --panel-2: #1D222A;
+    --border: #272C35;
+    --text: #ECE9E2;
+    --text-dim: #8E96A3;
+    --gold: #C9A227;
+    --gold-dim: #7A6626;
+    --green: #5CA97A;
+    --red: #C1584F;
+    --font-head: 'Space Grotesk', sans-serif;
+    --font-body: 'Inter', sans-serif;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-body);
+    line-height: 1.6;
+  }
+
+  .wrap {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 40px 20px 80px;
+  }
+
+  header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 24px;
+    margin-bottom: 32px;
+  }
+
+  h1 {
+    font-family: var(--font-head);
+    font-weight: 600;
+    font-size: 22px;
+    margin: 0 0 4px;
+  }
+
+  header p {
+    color: var(--text-dim);
+    font-size: 14px;
+    margin: 0;
+  }
+
+  .estado-conexion {
+    font-size: 13px;
+    color: var(--text-dim);
+    text-align: right;
+  }
+
+  .punto {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--text-dim);
+    margin-right: 6px;
+  }
+  .punto.ok { background: var(--green); }
+  .punto.mal { background: var(--red); }
+
+  .precio-bloque {
+    margin-bottom: 32px;
+  }
+
+  .precio-numero {
+    font-family: var(--font-head);
+    font-size: 56px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--gold);
+    line-height: 1;
+  }
+
+  .precio-meta {
+    color: var(--text-dim);
+    font-size: 13px;
+    margin-top: 8px;
+  }
+
+  button {
+    font-family: var(--font-body);
+    font-weight: 600;
+    font-size: 15px;
+    padding: 13px 22px;
+    border-radius: 6px;
+    border: none;
+    background: var(--gold);
+    color: #14120A;
+    cursor: pointer;
+  }
+
+  button:hover { background: #dcb434; }
+  button:disabled {
+    background: var(--panel-2);
+    color: var(--text-dim);
+    cursor: not-allowed;
+  }
+
+  .mensaje {
+    margin-top: 12px;
+    font-size: 13px;
+    color: var(--text-dim);
+    min-height: 18px;
+  }
+  .mensaje.error { color: var(--red); }
+
+  .panel {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 24px;
+    margin-top: 28px;
+  }
+
+  .panel-titulo {
+    font-family: var(--font-head);
+    font-size: 15px;
+    font-weight: 600;
+    margin: 0 0 18px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .badge {
+    font-size: 12px;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 4px;
+  }
+  .badge.compra { background: rgba(92,169,122,0.15); color: var(--green); }
+  .badge.venta { background: rgba(193,88,79,0.15); color: var(--red); }
+  .badge.neutral { background: rgba(142,150,163,0.15); color: var(--text-dim); }
+
+  .grid-datos {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-bottom: 20px;
+  }
+
+  .dato-label {
+    font-size: 12px;
+    color: var(--text-dim);
+    margin-bottom: 4px;
+  }
+  .dato-valor {
+    font-family: var(--font-head);
+    font-size: 18px;
+    font-weight: 600;
+  }
+
+  .texto-bloque {
+    font-size: 14px;
+    color: var(--text);
+    margin-bottom: 14px;
+  }
+  .texto-bloque strong {
+    display: block;
+    font-size: 12px;
+    color: var(--text-dim);
+    font-weight: 500;
+    margin-bottom: 4px;
+  }
+
+  .fila-historial {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 13px;
+  }
+  .fila-historial:last-child { border-bottom: none; }
+
+  .fila-historial .izq { color: var(--text-dim); }
+
+  .stats-precision {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+  }
+  .stats-precision .numero {
+    font-family: var(--font-head);
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--gold);
+  }
+  .stats-precision .detalle {
+    font-size: 13px;
+    color: var(--text-dim);
+  }
+
+  .vacio {
+    color: var(--text-dim);
+    font-size: 14px;
+  }
+
+  @media (max-width: 480px) {
+    .precio-numero { font-size: 40px; }
+    .grid-datos { grid-template-columns: 1fr 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <header>
+    <div>
+      <h1>Analista de oro</h1>
+      <p>Panel de prueba · XAU/USD</p>
+    </div>
+    <div class="estado-conexion" id="estadoConexion">
+      <span class="punto"></span>conectando...
+    </div>
+  </header>
+
+  <div class="precio-bloque">
+    <div class="precio-numero" id="precioActual">—</div>
+    <div class="precio-meta" id="precioMeta">Sin datos todavía</div>
+  </div>
+
+  <button id="btnAnalizar" onclick="pedirAnalisisAhora()">Analizar ahora</button>
+  <div class="mensaje" id="mensajeAccion"></div>
+
+  <div class="panel">
+    <div class="panel-titulo">
+      Último reporte
+      <span class="badge neutral" id="badgeDireccion">—</span>
+    </div>
+
+    <div class="grid-datos">
+      <div>
+        <div class="dato-label">Confianza</div>
+        <div class="dato-valor" id="valConfianza">—</div>
+      </div>
+      <div>
+        <div class="dato-label">Soporte</div>
+        <div class="dato-valor" id="valSoporte">—</div>
+      </div>
+      <div>
+        <div class="dato-label">Resistencia</div>
+        <div class="dato-valor" id="valResistencia">—</div>
+      </div>
+    </div>
+
+    <div class="texto-bloque">
+      <strong>Resumen</strong>
+      <span id="txtResumen">Todavía no se ha generado ningún reporte. Pulsa "Analizar ahora" para pedir el primero.</span>
+    </div>
+
+    <div class="texto-bloque">
+      <strong>Riesgos</strong>
+      <span id="txtRiesgos">—</span>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-titulo">Precisión de las proyecciones (24h)</div>
+    <div class="stats-precision">
+      <div class="numero" id="precisionNumero">—</div>
+      <div class="detalle" id="precisionDetalle">Todavía sin datos suficientes</div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-titulo">Historial reciente</div>
+    <div id="listaHistorial" class="vacio">Sin reportes todavía</div>
+  </div>
+
+</div>
+
+<script>
+  // Cambia esto si el dominio de tu backend cambia en algún momento
+  const API_BASE = "https://xauusd-ai-analyzer-dpuh.onrender.com";
+
+  const el = (id) => document.getElementById(id);
+
+  function formatoUSD(numero) {
+    if (numero === null || numero === undefined) return "—";
+    return "$" + Number(numero).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
+  function formatoFecha(iso) {
+    if (!iso) return "";
+    const d = new Date(iso);
+    return d.toLocaleString("es-PE", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" });
+  }
+
+  function pintarReporte(reporte) {
+    el("precioActual").textContent = formatoUSD(reporte.precio);
+    el("precioMeta").textContent =
+      `Fuentes: ${reporte.fuentes_precio || "—"} · ${formatoFecha(reporte.creado_en)} · origen: ${reporte.origen}`;
+
+    const badge = el("badgeDireccion");
+    badge.textContent = reporte.direccion;
+    badge.className = "badge " + reporte.direccion;
+
+    el("valConfianza").textContent = reporte.confianza + "%";
+    el("valSoporte").textContent = formatoUSD(reporte.soporte);
+    el("valResistencia").textContent = formatoUSD(reporte.resistencia);
+    el("txtResumen").textContent = reporte.resumen;
+    el("txtRiesgos").textContent = reporte.riesgos;
+  }
+
+  async function cargarUltimoReporte() {
+    try {
+      const r = await fetch(`${API_BASE}/reporte/ultimo`);
+      if (r.status === 404) return; // todavía no hay ningún reporte, se deja el estado vacío
+      if (!r.ok) throw new Error("No se pudo cargar el último reporte");
+      const data = await r.json();
+      pintarReporte(data);
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  async function cargarHistorial() {
+    try {
+      const r = await fetch(`${API_BASE}/reporte/historial?limite=8`);
+      if (!r.ok) throw new Error("No se pudo cargar el historial");
+      const data = await r.json();
+
+      const cont = el("listaHistorial");
+      if (data.length === 0) {
+        cont.className = "vacio";
+        cont.textContent = "Sin reportes todavía";
+        return;
+      }
+
+      cont.className = "";
+      cont.innerHTML = data.map(r => `
+        <div class="fila-historial">
+          <span class="izq">${formatoFecha(r.creado_en)} · ${r.origen}</span>
+          <span class="badge ${r.direccion}" style="font-size:11px;">${r.direccion} · ${r.confianza}%</span>
+        </div>
+      `).join("");
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  async function cargarPrecision() {
+    try {
+      const r = await fetch(`${API_BASE}/reporte/precision?ventana=24h`);
+      if (!r.ok) throw new Error("No se pudo cargar la precisión");
+      const data = await r.json();
+
+      if (data.total_evaluados === 0) {
+        el("precisionNumero").textContent = "—";
+        el("precisionDetalle").textContent = "Todavía sin reportes evaluados (esperan 1h desde su creación)";
+        return;
+      }
+
+      el("precisionNumero").textContent = data.porcentaje_precision + "%";
+      el("precisionDetalle").textContent = `${data.aciertos} de ${data.total_evaluados} proyecciones acertadas`;
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  async function verificarConexion() {
+    const estado = el("estadoConexion");
+    try {
+      const r = await fetch(`${API_BASE}/salud`);
+      if (!r.ok) throw new Error();
+      estado.innerHTML = '<span class="punto ok"></span>backend conectado';
+    } catch (e) {
+      estado.innerHTML = '<span class="punto mal"></span>no se pudo conectar';
+    }
+  }
+
+  async function pedirAnalisisAhora() {
+    const btn = el("btnAnalizar");
+    const msg = el("mensajeAccion");
+
+    btn.disabled = true;
+    msg.className = "mensaje";
+    msg.textContent = "Analizando mercado... esto puede tardar unos segundos.";
+
+    try {
+      const r = await fetch(`${API_BASE}/reporte/ahora`, { method: "POST" });
+
+      if (r.status === 429) {
+        const data = await r.json();
+        msg.className = "mensaje error";
+        msg.textContent = data.detail;
+        return;
+      }
+
+      if (!r.ok) {
+        const data = await r.json().catch(() => ({}));
+        throw new Error(data.detail || "Error al generar el análisis");
+      }
+
+      const reporte = await r.json();
+      pintarReporte(reporte);
+      msg.textContent = "Reporte actualizado.";
+      cargarHistorial();
+      cargarPrecision();
+    } catch (e) {
+      msg.className = "mensaje error";
+      msg.textContent = e.message;
+    } finally {
+      btn.disabled = false;
+    }
+  }
+
+  // Carga inicial
+  verificarConexion();
+  cargarUltimoReporte();
+  cargarHistorial();
+  cargarPrecision();
+</script>
+
+</body>
+</html>
