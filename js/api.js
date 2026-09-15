@@ -1,4 +1,4 @@
-const API_BASE = "https://xauusd-ai-analyzer-dpuh.onrender.com";
+const API_BASE = "https://xauusd-ai-analyzer-h7of.onrender.com";
 
 const api = {
   async getSalud() {
