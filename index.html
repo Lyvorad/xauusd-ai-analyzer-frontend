@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Analista de oro · XAU/USD Pro</title>
+  <title>XAU/USD AI Analyzer Pro</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/styles.css">
@@ -12,36 +12,42 @@
 
 <div class="dashboard">
 
-  <!-- Top Navigation / Header -->
+  <!-- TOP BAR -->
   <header class="topbar">
     <div class="logo">
       <span class="logo-icon">▲</span>
       <h1>XAU/USD AI Analyzer</h1>
     </div>
-    
-    <div class="topbar-right">
+    <div class="topbar-center">
       <div class="precio-header">
         <span class="ticker">XAU/USD</span>
         <span class="precio-numero" id="precioActualHeader">—</span>
       </div>
+    </div>
+    <div class="topbar-right">
+      <button id="btnAnalizar" class="btn-analizar" onclick="app.pedirAnalisisAhora()">
+        <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2.5" fill="none"><path d="M23 4v6h-6M1 20v-6h6M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+        Analizar Ahora
+      </button>
+      <div id="mensajeAccion" class="mensaje"></div>
       <div class="estado-conexion" id="estadoConexion">
-        <span class="punto"></span>conectando...
+        <span class="punto"></span>
+        <span class="conexion-texto">conectando...</span>
       </div>
     </div>
   </header>
 
+  <!-- MIDDLE: Chart (left) + Analysis Panel (right) -->
   <div class="main-content">
-    
-    <!-- Left Column: TradingView Chart -->
-    <div class="col-chart">
+
+    <!-- CHART - Full height, left -->
+    <section class="col-chart">
       <div class="panel panel-chart">
-        <!-- TradingView Widget BEGIN -->
         <div class="tradingview-widget-container" style="height:100%;width:100%">
-          <div id="tradingview_xauusd" style="height:calc(100% - 32px);width:100%"></div>
+          <div id="tradingview_xauusd" style="height:100%;width:100%"></div>
           <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
           <script type="text/javascript">
-          new TradingView.widget(
-          {
+          new TradingView.widget({
             "autosize": true,
             "symbol": "OANDA:XAUUSD",
             "interval": "60",
@@ -56,110 +62,102 @@
             "hide_legend": false,
             "save_image": false,
             "container_id": "tradingview_xauusd",
-            "toolbar_bg": "#0b0e14"
-          }
-          );
+            "toolbar_bg": "#131722",
+            "studies": ["RSI@tv-basicstudies", "MAExp@tv-basicstudies"]
+          });
           </script>
         </div>
-        <!-- TradingView Widget END -->
       </div>
-    </div>
+    </section>
 
-    <!-- Right Column: AI Analysis & Calculator -->
-    <div class="col-analysis">
-      <div class="panel">
-        <div class="panel-titulo">
-          Análisis de Inteligencia Artificial
-          <button id="btnAnalizar" class="btn-analizar" onclick="app.pedirAnalisisAhora()">
-            <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none"><path d="M23 4v6h-6M1 20v-6h6M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
-            Analizar Ahora
-          </button>
-        </div>
-        <div class="mensaje" id="mensajeAccion"></div>
+    <!-- RIGHT SIDEBAR: AI Analysis -->
+    <aside class="col-analysis">
 
-        <!-- AI Signal & Confidence -->
-        <div class="ai-signal-box">
-          <div class="signal-header">
-            <span class="badge neutral" id="badgeDireccion">ESPERANDO DATOS</span>
-            <span class="timestamp" id="timestampReporte">—</span>
-          </div>
-          
-          <div class="confianza-container">
-            <div class="confianza-label">
-              <span>Nivel de Confianza</span>
-              <span id="valConfianza">—</span>
-            </div>
-            <div class="barra-progreso-bg"><div class="barra-progreso" id="barraConfianza"></div></div>
+      <!-- AI Signal -->
+      <div class="panel ai-panel">
+        <p class="section-label">SEÑAL IA</p>
+        <div class="signal-row">
+          <span class="badge neutral" id="badgeDireccion">ESPERANDO</span>
+          <div class="confianza-mini">
+            <span class="confianza-pct" id="valConfianza">—</span>
+            <span class="confianza-txt">confianza</span>
           </div>
         </div>
+        <div class="barra-progreso-bg"><div class="barra-progreso" id="barraConfianza"></div></div>
+        <p class="timestamp" id="timestampReporte">Sin análisis todavía</p>
+      </div>
 
-        <!-- Trading Calculator -->
-        <div class="trading-calculator">
-          <h4>Calculadora de Estrategia</h4>
-          
-          <div class="calc-grid">
-            <div class="calc-item">
-              <span class="calc-label">Entrada</span>
-              <span class="calc-value" id="calcEntrada">—</span>
-            </div>
-            <div class="calc-item tp">
-              <span class="calc-label">Take Profit (R)</span>
-              <span class="calc-value" id="calcTP">—</span>
-            </div>
-            <div class="calc-item sl">
-              <span class="calc-label">Stop Loss (S)</span>
-              <span class="calc-value" id="calcSL">—</span>
-            </div>
+      <!-- Trading Calculator -->
+      <div class="panel calc-panel">
+        <p class="section-label">CALCULADORA DE ESTRATEGIA</p>
+        <div class="calc-grid">
+          <div class="calc-item entrada">
+            <span class="calc-label">Entrada</span>
+            <span class="calc-value" id="calcEntrada">—</span>
           </div>
-
-          <div class="risk-reward-box">
-            <div class="risk-input">
-              <label>Riesgo ($):</label>
-              <input type="number" id="inputRiesgo" value="100" onchange="ui.actualizarCalculadora()">
-            </div>
-            <div class="rr-result">
-              <span>Ganancia Estimada: <strong class="ganancia" id="gananciaEstimada">—</strong></span>
-              <span>Ratio Riesgo/Beneficio: <strong id="ratioRR">—</strong></span>
-            </div>
+          <div class="calc-item tp">
+            <span class="calc-label">Take Profit ▲</span>
+            <span class="calc-value tp-val" id="calcTP">—</span>
+          </div>
+          <div class="calc-item sl">
+            <span class="calc-label">Stop Loss ▼</span>
+            <span class="calc-value sl-val" id="calcSL">—</span>
           </div>
         </div>
 
-        <!-- Summary & Risks -->
-        <div class="texto-bloque">
-          <strong>Resumen del Analista</strong>
-          <span id="txtResumen" class="ai-text">Presiona "Analizar Ahora" para obtener el primer reporte.</span>
+        <div class="risk-reward-box">
+          <div class="risk-input">
+            <label>Riesgo ($):</label>
+            <input type="number" id="inputRiesgo" value="100" oninput="ui.actualizarCalculadora()">
+          </div>
+          <div class="rr-result">
+            <span>Ganancia Est.: <strong class="ganancia" id="gananciaEstimada">—</strong></span>
+            <span>Ratio R/R: <strong id="ratioRR">—</strong></span>
+          </div>
         </div>
+      </div>
 
-        <div class="texto-bloque alert-box">
-          <strong>⚠️ Riesgos y Consideraciones</strong>
-          <span id="txtRiesgos" class="ai-text">—</span>
-        </div>
+      <!-- Summary -->
+      <div class="panel resumen-panel">
+        <p class="section-label">RESUMEN DEL ANALISTA IA</p>
+        <p id="txtResumen" class="ai-text">Presiona "Analizar Ahora" para obtener el primer análisis.</p>
+      </div>
 
-        <!-- Technical Indicators -->
+      <!-- Risks -->
+      <div class="panel riesgos-panel">
+        <p class="section-label warning-label">⚠ RIESGOS IDENTIFICADOS</p>
+        <p id="txtRiesgos" class="ai-text">—</p>
+      </div>
+
+      <!-- Technical Indicators -->
+      <div class="panel indicadores-panel">
+        <p class="section-label">INDICADORES TÉCNICOS</p>
         <div class="indicadores-tecnicos" id="indicadoresTecnicos">
-           <span class="indicador-tag">RSI: —</span>
-           <span class="indicador-tag">EMA 20: —</span>
-           <span class="indicador-tag">EMA 50: —</span>
+          <span class="indicador-tag">RSI: —</span>
+          <span class="indicador-tag">EMA 20: —</span>
+          <span class="indicador-tag">EMA 50: —</span>
         </div>
       </div>
-    </div>
+
+    </aside>
   </div>
 
-  <!-- Bottom Row: History and Stats -->
+  <!-- BOTTOM: History Table + Performance -->
   <div class="bottom-content">
+
     <div class="panel col-history">
-      <div class="panel-titulo">Historial de Señales (Últimas 24h)</div>
+      <p class="section-label">HISTORIAL DE SEÑALES (ÚLTIMOS 8)</p>
       <div class="table-container">
         <table class="data-table">
           <thead>
             <tr>
               <th>Fecha</th>
-              <th>Origen</th>
               <th>Señal</th>
-              <th>Confianza</th>
+              <th>Conf.</th>
               <th>Precio</th>
               <th>Take Profit</th>
               <th>Stop Loss</th>
+              <th>Origen</th>
             </tr>
           </thead>
           <tbody id="listaHistorial">
@@ -168,17 +166,18 @@
         </table>
       </div>
     </div>
-    
+
     <div class="panel col-stats">
-      <div class="panel-titulo">Rendimiento de la IA</div>
+      <p class="section-label">RENDIMIENTO IA (24H)</p>
       <div class="stats-precision">
         <div class="numero" id="precisionNumero">—</div>
         <div class="detalle">
-          <strong>Precisión global (24h)</strong>
-          <span id="precisionDetalle">Sin datos suficientes evaluados (las proyecciones esperan 1h para validarse).</span>
+          <strong>Precisión Global</strong>
+          <span id="precisionDetalle">Proyecciones evaluadas 1h después de su creación.</span>
         </div>
       </div>
     </div>
+
   </div>
 
 </div>
